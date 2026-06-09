@@ -3,10 +3,21 @@ spring:
     name: Lumina
   profiles:
     active: local
+  ai:
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+  chat:
+    options:
+      model: qwq-plus
 server:
   port: 8123
   servlet:
     context-path: /api
+
 
 # springdoc-openapi????
 springdoc:

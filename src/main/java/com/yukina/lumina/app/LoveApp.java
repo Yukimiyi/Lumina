@@ -3,6 +3,7 @@ package com.yukina.lumina.app;
 
 import com.yukina.lumina.advisor.MyLoggerAdvisor;
 import com.yukina.lumina.chatmemory.FileBasedChatMemory;
+import com.yukina.lumina.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -13,7 +14,6 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -87,17 +87,28 @@ public class LoveApp {
     @Resource
     private Advisor loveAppRagCloudAdvisor;
 
+    @Resource
+    private QueryRewriter queryRewriter;
+
     public String doChatWithRag(String message, String chatId) {
+        // 查询重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message)
+                // 使用改写后的提问
+                .user(rewrittenMessage)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                // 应用 RAG 知识库问答
+                // 开启日志，便于观察效果
                 .advisors(new MyLoggerAdvisor())
-//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                // 应用 RAG 知识库问答
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 应用 RAG 增强索引服务（基于云知识库服务）
-                .advisors(loveAppRagCloudAdvisor)
+//                .advisors(loveAppRagCloudAdvisor)
+                // 应用 RAG 增强索引服务（基于 PGVector 服务）
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                // 应用 RAG 索引服务（高级自定义）
+//                .advisors(LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(loveAppVectorStore, "单身"))
                 .call()
                 .chatResponse();
 
