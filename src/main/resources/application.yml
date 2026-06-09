@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Lumina
+    name: lumina
   profiles:
     active: local
   ai:

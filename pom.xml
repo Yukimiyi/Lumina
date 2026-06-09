@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yukina</groupId>
-    <artifactId>Lumina</artifactId>
+    <artifactId>lumina</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Lumina</name>
-    <description>Lumina</description>
+    <name>lumina</name>
+    <description>lumina</description>
     <url/>
     <licenses>
         <license/>
