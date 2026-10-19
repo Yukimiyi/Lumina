@@ -16,7 +16,7 @@ import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgDistan
 import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgIndexType.HNSW;
 
 
-// 为了成本和开发效率，暂时停用基于 基于 PGVector 服务 的 RAG
+// 停用
 //@Configuration
 public class PgVectorVectorStoreConfig {
 
