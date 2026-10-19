@@ -21,7 +21,7 @@ public class LoveAppRagCustomAdvisorFactory {
                 .build();
         DocumentRetriever documentRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .filterExpression(expression)  // 过滤条件
+//                .filterExpression(expression)  // 过滤条件
                 .similarityThreshold(0.5) // 相似度阈值
                 .topK(3) // 返回文档数量
                 .build();

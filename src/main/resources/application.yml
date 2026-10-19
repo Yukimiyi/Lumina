@@ -2,7 +2,7 @@ spring:
   application:
     name: lumina
   profiles:
-    active: local
+    active: local  # 激活 local 配置，密钥密码等d敏感信息存在 application-local.yml 中，不提交该文件
   ai:
     vectorstore:
       pgvector:
@@ -10,6 +10,12 @@ spring:
         dimensions: 1536
         distance-type: COSINE_DISTANCE
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+    dashscope:
+      api-key: your_api_key_here
+  datasource:
+    url: jdbc:postgresql://your_host:your_port/your_database
+    username: your_username
+    password: your_password
   chat:
     options:
       model: qwq-plus
@@ -18,8 +24,6 @@ server:
   servlet:
     context-path: /api
 
-
-# springdoc-openapi????
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -31,8 +35,14 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.yukina.lumina.controller
-# knife4j???????????????
 knife4j:
   enable: true
   setting:
     language: zh_cn
+# searchApi
+search-api:
+  api-key: 你的 API Key
+
+logging:
+  level:
+    org.springframework.ai: DEBUG

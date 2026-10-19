@@ -39,7 +39,7 @@ public class ReReadingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor 
 
 	@Override
 	public int getOrder() {
-		return 0;
+		return 1;
 	}
 
 	@Override

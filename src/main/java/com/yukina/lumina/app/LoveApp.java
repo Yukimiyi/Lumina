@@ -13,6 +13,7 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -90,6 +91,9 @@ public class LoveApp {
     @Resource
     private QueryRewriter queryRewriter;
 
+    @Resource
+    private ToolCallback[] allTools;
+
     public String doChatWithRag(String message, String chatId) {
         // 查询重写
         String rewrittenMessage = queryRewriter.doQueryRewrite(message);
@@ -109,6 +113,26 @@ public class LoveApp {
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 应用 RAG 索引服务（高级自定义）
 //                .advisors(LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(loveAppVectorStore, "单身"))
+                .call()
+                .chatResponse();
+
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+    public String doChatWithTools(String message, String chatId) {
+        // 查询重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                // 使用改写后的提问
+                .user(rewrittenMessage)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
                 .call()
                 .chatResponse();
 
