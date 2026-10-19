@@ -12,6 +12,14 @@ spring:
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
     dashscope:
       api-key: your_api_key_here
+    mcp:
+      client:
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8127
+#        stdio:
+#          servers-configuration: classpath:mcp-servers.json
   datasource:
     url: jdbc:postgresql://your_host:your_port/your_database
     username: your_username
@@ -46,3 +54,4 @@ search-api:
 logging:
   level:
     org.springframework.ai: DEBUG
+
