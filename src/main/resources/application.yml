@@ -2,7 +2,7 @@ spring:
   application:
     name: lumina
   profiles:
-    active: local  # 激活 local 配置，密钥密码等d敏感信息存在 application-local.yml 中，不提交该文件
+    active: local  # 激活 local 配置，密钥密码等敏感信息存在 application-local.yml 中，不提交该文件
   ai:
     vectorstore:
       pgvector:
