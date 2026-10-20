@@ -10,7 +10,7 @@ class PDFGenerationToolTest {
     void generatePDF() {
         PDFGenerationTool tool = new PDFGenerationTool();
         String fileName = "文件.pdf";
-        String content = "1 + 1 = 2";
+        String content = "Yukina 的 github 主页： https://github.com/Yukimiyi";
         String result = tool.generatePDF(fileName, content);
         assertNotNull(result);
     }

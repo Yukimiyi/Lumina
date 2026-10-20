@@ -21,4 +21,14 @@ class ManusTest {
         String answer = manus.run(userPrompt);
         Assertions.assertNotNull(answer);
     }
+
+    @Test
+    void run2() {
+        String userPrompt = """
+                输出带有“我爱你”字样的PDF文件
+                """;
+        String answer = manus.run(userPrompt);
+        Assertions.assertNotNull(answer);
+    }
+
 }

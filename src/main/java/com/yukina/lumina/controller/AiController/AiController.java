@@ -1,5 +1,6 @@
 package com.yukina.lumina.controller.AiController;
 
+import com.yukina.lumina.agent.Manus;
 import com.yukina.lumina.app.LoveApp;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.model.ChatModel;
@@ -66,5 +67,17 @@ public class AiController {
                 );
         // 返回 emitter
         return emitter;
+    }
+
+    /**
+     * 流式调用 Manus 超级智能体
+     *
+     * @param message
+     * @return
+     */
+    @GetMapping("/manus/chat")
+    public SseEmitter doChatWithManus(String message) {
+        Manus manus = new Manus(allTools, dashscopeChatModel);
+        return manus.runStream(message);
     }
 }
