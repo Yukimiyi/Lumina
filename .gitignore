@@ -2,6 +2,7 @@
 ### Custom ###
 chat-memory
 application-local.yml
+application-prod.yml
 tmp
 mcp-servers.json
 

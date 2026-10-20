@@ -2,7 +2,8 @@ import axios from 'axios'
 import { createSseParser } from './sse'
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  // Production always uses the page's origin, even if a local env file sets an absolute URL.
+  baseURL: import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_BASE_URL || '/api'),
   adapter: 'fetch',
 })
 

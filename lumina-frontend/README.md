@@ -26,8 +26,8 @@ npm run preview
 
 | 应用 | GET 接口 | 查询参数 |
 | --- | --- | --- |
-| AI 恋爱大师 | `/api/ai/love_app/chat/sse` | `message`, `chatId` |
-| AI 超级智能体 | `/api/ai/manus/chat` | `message` |
+| 恋爱顾问 | `/api/ai/love_app/chat/sse` | `message`, `chatId` |
+| 恋爱策划师 | `/api/ai/manus/chat` | `message` |
 
 Axios 使用 fetch adapter 和 `responseType: 'stream'` 读取 SSE。解析器处理网络分片、UTF-8、多行 data、CR/LF/CRLF 换行、注释和命名事件。恋爱应用逐片追加文本并保留空白；智能体每个事件为一个完整步骤，步骤间增加空行。`[DONE]`、`event: done` 或连接正常关闭表示结束，`event: error` 显示错误。不会自动重连，避免重复触发智能体任务。AI 输出作为纯文本安全显示，不执行 HTML。
 
@@ -35,10 +35,30 @@ Axios 使用 fetch adapter 和 `responseType: 'stream'` 读取 SSE。解析器�
 
 支持 Enter 发送、Shift + Enter 换行、中文输入法、停止生成、发送期间防重复提交、失败保留已生成内容。主动向上滚动阅读时暂停自动滚动；滚动到底部恢复。切换页面或新建会话会取消当前请求。浏览器取消连接不保证后端停止工具执行，取决于后端取消机制。
 
-## 部署
+## 开发与生产请求配置
 
-`npm run build` 生成 `dist/`。使用 hash 路由，无需前端路由重写。生产服务器需将 `/api` 反向代理至后端，并关闭 SSE 响应缓冲、设置适合长连接的读取超时；Vite 的开发代理不包含在构建产物中。
+两种环境浏览器默认都请求相对路径 `/api`，区别在于代理服务：
 
-也可以复制 `.env.example` 为 `.env.local`，设置 `VITE_API_BASE_URL=http://localhost:8123/api` 后重启开发服务或重新构建。直接跨域访问时后端需要允许前端来源；HTTPS 页面必须连接 HTTPS 后端。
+| 环境 | 请求链路 |
+| --- | --- |
+| `npm run dev` | 浏览器 → Vite 的 /api → http://localhost:8123/api |
+| 生产 Nginx | 浏览器 → 当前网站域名的 /api → nginx.conf 中配置的后端 /api |
 
-SSE 解析说明参考 [Axios 官方 fetch adapter 文档](https://github.com/axios/axios#fetch-adapter)。
+`.env.development` 配置开发代理。更换本地后端时，可以复制 `.env.example` 为 `.env.development.local`，修改 `DEV_API_TARGET`（只填协议、主机、端口，不加 /api），然后重启 Vite。
+
+生产构建在 `src/api/chat.js` 中固定使用 `/api`，避免本地环境变量把 localhost 带到线上。后端域名只配置在 Nginx 中。Vite 开发代理不会打进 dist；`npm run preview` 不能用于验证生产 Nginx 配置。
+
+## 部署到 Nginx
+
+1. 执行 `npm run build`，将 dist **目录内的文件**部署到 `/usr/share/nginx/html/`。
+2. 将本项目 `nginx.conf` 安装为 `/etc/nginx/conf.d/default.conf`。它只有 server 块，不应直接替换顶层 nginx.conf。
+3. 修改 `proxy_pass` 为实际后端地址。当前保留原配置中的 https://yu-ai-agent-backend-119344-6-1256524210.sh.run.tcloudbase.com，请确认它属于本项目，不能直接把教程示例当作实际后端。
+4. 在 Nginx 所在服务器或容器中执行 `nginx -t`，检查成功后再执行 `nginx -s reload`。
+
+`proxy_pass` 不带 URI 后缀，所以 /api/ai/... 会原样传给后端，不能随意增加尾部斜线而移除 /api。HTTPS 上游已开启 SNI，Host 自动使用上游域名。若 Nginx 与后端通过同机或容器网络通信，可将该地址换成实际可达的 HTTP 服务地址；容器内 localhost 只代表当前容器。
+
+当前 server 监听 80，适用于由云平台入口终止 HTTPS 的部署；平台服务端口也应设为 80。自行部署公网 HTTPS 时需在入口配置域名和证书。SSE 已关闭响应缓冲、缓存和压缩，并设置 600 秒的上游读取间隔超时；外层网关也必须支持流式响应及足够长的超时。此配置不会延长后端自身的 SseEmitter 超时。
+
+发布后可先访问网站首页，再请求同域健康接口或发送一条聊天消息，检查开发者工具中的请求 URL 是否为当前域名 /api/...。流式连接应持续收到内容，而不是等结束后一次性显示。
+
+配置依据：[Nginx 官方代理模块说明](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)。
