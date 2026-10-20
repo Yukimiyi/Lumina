@@ -1,6 +1,6 @@
 # Lumina 前端
 
-Vue 3 + Vue Router + Axios + Vite，包含应用主页、AI 恋爱大师和 AI 超级智能体两个聊天页面，适配手机与桌面。
+Vue 3 + Vue Router + Axios + Vite，包含应用主页、恋爱顾问和 恋爱策划师两个聊天页面，适配手机与桌面。
 
 ## 运行
 

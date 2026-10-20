@@ -56,7 +56,7 @@ async function send(text = draft.value) {
   draft.value = ''
   busy.value = true
   messages.value.push({ id: createId(), role: 'user', content: message })
-  messages.value.push({ id: createId(), role: 'assistant', content: '', status: 'streaming' })
+  messages.value.push({ id: createId(), role: 'assistant', content: '', steps: [], status: 'streaming' })
   const reply = messages.value[messages.value.length - 1]
   followBottom = true
   scrollToBottom(true)
@@ -68,7 +68,8 @@ async function send(text = draft.value) {
       signal: request.signal,
       onChunk(chunk) {
         if (generation !== run) return
-        // Manus emits one complete execution step per SSE event.
+        // The backend emits one complete execution step per Manus SSE event.
+        if (props.appId === 'manus' && chunk) reply.steps.push(chunk)
         reply.content += (props.appId === 'manus' && reply.content ? '\n\n' : '') + chunk
         scrollToBottom()
       },
@@ -117,7 +118,7 @@ onBeforeUnmount(() => {
     <div ref="messageList" class="messages-scroll" role="log" aria-label="聊天记录" :aria-busy="busy" @scroll="handleScroll">
       <div v-if="!messages.length" class="chat-welcome">
         <span class="welcome-symbol"><AppIcon :name="app.icon" :size="37" /></span>
-        <div class="eyebrow">{{ appId === 'love' ? 'A SPACE FOR YOUR HEART' : 'YOUR IDEAS, IN MOTION' }}</div>
+        <div class="eyebrow">{{ appId === 'love' ? 'A SPACE FOR YOUR HEART' : 'A LITTLE THOUGHT, A LOT OF LOVE' }}</div>
         <h2>{{ app.greeting }}</h2>
         <p>{{ app.hint }}</p>
         <div class="suggestions"><button v-for="prompt in app.prompts" :key="prompt" @click="send(prompt)">{{ prompt }}<AppIcon name="arrow" :size="16" /></button></div>
@@ -128,7 +129,15 @@ onBeforeUnmount(() => {
           <span class="avatar"><AppIcon :name="message.role === 'user' ? 'user' : app.icon" :size="19" /></span>
           <div class="message-body">
             <div class="message-author">{{ message.role === 'user' ? '你' : app.name }}</div>
-            <div class="bubble">
+            <div v-if="appId === 'manus' && message.role === 'assistant' && message.steps.length" class="planning-progress">
+              <div class="planning-heading">{{ message.status === 'streaming' ? '正在为你策划' : message.status === 'complete' ? '本次策划记录' : '已接收的策划进展' }}</div>
+              <section v-for="(step, index) in message.steps" :key="index" class="planning-step">
+                <span class="step-number">{{ String(index + 1).padStart(2, '0') }}</span>
+                <div class="step-content">{{ step }}</div>
+              </section>
+              <div v-if="message.status === 'streaming'" class="planning-waiting" role="status">正在继续整理<span class="stream-cursor" /></div>
+            </div>
+            <div v-else class="bubble">
               <span v-if="message.content">{{ message.content }}</span>
               <span v-else-if="message.status === 'streaming'" class="thinking"><i /><i /><i /><span>正在思考</span></span>
               <span v-else class="empty-response">{{ message.status === 'stopped' ? '已停止生成' : '未收到回复' }}</span>
@@ -144,7 +153,7 @@ onBeforeUnmount(() => {
       <div v-if="error" class="error-banner" role="alert">{{ error }}<button aria-label="关闭错误提示" @click="error = ''">×</button></div>
       <form class="composer" @submit.prevent="send()">
         <label class="sr-only" for="message-input">输入消息</label>
-        <textarea id="message-input" ref="input" v-model="draft" rows="2" :placeholder="appId === 'love' ? '说说你的心事吧…' : '描述你的任务，或者提出一个问题…'" @keydown="handleKey" />
+        <textarea id="message-input" ref="input" v-model="draft" rows="2" :placeholder="appId === 'love' ? '说说你的心事吧…' : '说说你想准备的惊喜、你们的喜好和预算…'" @keydown="handleKey" />
         <div class="composer-toolbar"><span><AppIcon :name="app.icon" :size="15" /> {{ app.shortName }}</span>
           <button v-if="busy" type="button" class="send-button stop-button" aria-label="停止生成" title="停止生成" @click="stop"><AppIcon name="stop" :size="17" /></button>
           <button v-else type="submit" class="send-button" :disabled="!draft.trim()" aria-label="发送消息" title="发送消息"><AppIcon name="send" :size="20" /></button>

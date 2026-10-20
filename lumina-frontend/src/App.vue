@@ -20,8 +20,8 @@ import AppIcon from './components/AppIcon.vue'
       </nav>
       <div class="sidebar-bottom">
         <div class="small-spark">✧</div>
-        <strong>一点灵感，无限可能</strong>
-        <p>与 AI 一起，发现更多可能。</p>
+        <strong>用心相处，让爱发生</strong>
+        <p>从倾听心事，到准备心意。</p>
         <span class="version">LUMINA WORKSPACE · 1.0</span>
       </div>
     </aside>
