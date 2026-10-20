@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yukina.lumina.agent.model.AgentState;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 
@@ -25,16 +26,16 @@ public abstract class BaseAgent {
 
     // 提示
     private String systemPrompt;
-
-    // 状态
     private String nextStepPrompt;
 
-    // 执行控制
+    // 状态
     private AgentState state = AgentState.IDLE;
-
-    // LLM
+    // 执行控制
     private int maxSteps = 10;
     private int currentStep = 0;
+
+    // LLM
+    private ChatClient chatClient;
 
     // Memory（自主维护消息上下文）
     private List<Message> messageList = new ArrayList<>();
