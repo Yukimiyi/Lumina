@@ -52,7 +52,7 @@ Axios 使用 fetch adapter 和 `responseType: 'stream'` 读取 SSE。解析器�
 
 1. 执行 `npm run build`，将 dist **目录内的文件**部署到 `/usr/share/nginx/html/`。
 2. 将本项目 `nginx.conf` 安装为 `/etc/nginx/conf.d/default.conf`。它只有 server 块，不应直接替换顶层 nginx.conf。
-3. 修改 `proxy_pass` 为实际后端地址。当前保留原配置中的 https://yu-ai-agent-backend-119344-6-1256524210.sh.run.tcloudbase.com，请确认它属于本项目，不能直接把教程示例当作实际后端。
+3. 修改 `proxy_pass` 为实际后端地址。
 4. 在 Nginx 所在服务器或容器中执行 `nginx -t`，检查成功后再执行 `nginx -s reload`。
 
 `proxy_pass` 不带 URI 后缀，所以 /api/ai/... 会原样传给后端，不能随意增加尾部斜线而移除 /api。HTTPS 上游已开启 SNI，Host 自动使用上游域名。若 Nginx 与后端通过同机或容器网络通信，可将该地址换成实际可达的 HTTP 服务地址；容器内 localhost 只代表当前容器。
